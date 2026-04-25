@@ -4,5 +4,6 @@ token.json
 __pycache__/
 .env
 venv/
+.venv/
 node_modules/
 dist/

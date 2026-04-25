@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { SlidersHorizontal, X } from 'lucide-react'
+import { LOCATION_LABELS } from '../api'
 
 const SOURCES = ['pap', 'seloger', 'leboncoin', 'bienici', 'logic-immo']
 const STATUTS = ['nouveau', 'vu', 'intéressant', 'contacté', 'écarté']
-const ARRTS = ['75001','75002','75003','75004','75005','75006','75007','75008','75009','75010',
-  '75011','75012','75013','75014','75015','75016','75017','75018','75019','75020']
 
 function Field({ label, children }) {
   return (
@@ -113,8 +112,8 @@ export function FiltrePanel({ filters, onChange }) {
                 className="border border-gray-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
               >
                 <option value="">Tous</option>
-                {ARRTS.map((a) => (
-                  <option key={a} value={a}>{a.slice(3)}e arr.</option>
+                {Object.entries(LOCATION_LABELS).map(([code, label]) => (
+                  <option key={code} value={code}>{label}</option>
                 ))}
               </select>
             </Field>

@@ -12,6 +12,13 @@ class BaseParser(ABC):
 
     source: str = "unknown"
 
+    # Chaînes recherchées dans le HTML pour détecter la source (fallback forward)
+    html_signatures: list[str] = []
+
+    def can_handle(self, html: str) -> bool:
+        """Retourne True si le HTML contient une signature connue de cette source."""
+        return any(sig in html for sig in self.html_signatures)
+
     def parse(self, mail_html: str, mail_date: datetime) -> list[Annonce]:
         """
         Reçoit le HTML brut du mail et la date de réception.

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ArrowUpDown, Home } from 'lucide-react'
-import { api } from '../api'
+import { api, LOCATION_LABELS } from '../api'
 import { FiltrePanel } from '../components/FiltrePanel'
 import { StatutBadge } from '../components/StatutBadge'
 import { StarRating } from '../components/StarRating'
@@ -71,7 +71,7 @@ function AnnonceRow({ annonce, onOpen }) {
         </div>
         {annonce.arrondissement && (
           <span className="text-xs text-gray-400 mt-0.5 block">
-            Paris {annonce.arrondissement.slice(3)}e
+            {LOCATION_LABELS[annonce.arrondissement] ?? annonce.arrondissement}
           </span>
         )}
       </td>

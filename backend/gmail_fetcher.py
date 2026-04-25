@@ -18,8 +18,10 @@ from parsers.registry import get_parser
 logger = logging.getLogger(__name__)
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
-CREDENTIALS_FILE = os.getenv("GMAIL_CREDENTIALS_FILE", "credentials.json")
-TOKEN_FILE = os.getenv("GMAIL_TOKEN_FILE", "token.json")
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
+CREDENTIALS_FILE = os.getenv("GMAIL_CREDENTIALS_FILE", os.path.join(_HERE, "credentials.json"))
+TOKEN_FILE = os.getenv("GMAIL_TOKEN_FILE", os.path.join(_HERE, "token.json"))
 
 
 def get_gmail_service():
@@ -32,6 +34,11 @@ def get_gmail_service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
+            if not os.path.exists(CREDENTIALS_FILE):
+                raise FileNotFoundError(
+                    f"credentials.json introuvable : {CREDENTIALS_FILE}\n"
+                    "Télécharge-le depuis Google Cloud Console et place-le dans backend/"
+                )
             flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
             creds = flow.run_local_server(port=0)
         with open(TOKEN_FILE, "w") as f:
@@ -84,15 +91,15 @@ def sync() -> dict:
 
                 headers = {h["name"]: h["value"] for h in msg["payload"]["headers"]}
                 sender = headers.get("From", "")
+                subject = headers.get("Subject", "")
                 date_str = headers.get("Date", "")
 
-                parser = get_parser(sender)
+                mail_html = get_mail_body(msg["payload"])
+                parser = get_parser(sender, subject, mail_html)
                 if not parser:
-                    logger.debug(f"Pas de parser pour : {sender}")
+                    logger.info(f"Pas de parser pour : {sender} | sujet: {subject}")
                     stats["skipped"] += 1
                     continue
-
-                mail_html = get_mail_body(msg["payload"])
                 mail_date = datetime.now(timezone.utc)  # fallback
 
                 annonces = parser.parse(mail_html, mail_date)
